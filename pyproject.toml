@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "kleep"
+version = "0.1.0"
+description = "A project for downloading and processing YouTube videos"
+authors = ["Joao Nolasco Rocha <joaonolascorocha@gmail.com>"]
+readme = "README.md"
+packages = [{include = "kleep", from = "src"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+pytubefix = "^10.1.1"
+moviepy = "^1.0.3"
+filetype = "^1.2.0"
+music-tag = "^0.4.3"
+numpy = "^1.26.0"
+pydub = "^0.25.1"
+
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+dev = [
+    "ruff (>=0.14.2,<0.15.0)"
+]
