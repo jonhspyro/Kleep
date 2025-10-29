@@ -29,7 +29,6 @@ def get_tt(track_time_stamps : list, track_names : list, count : int, video_leng
 
         track_times.append(ts)
     for i in range(count):
-        print(i)
         if i != count - 1:
             time_stamp : tuple = (track_times[i], track_times[i + 1])
             track_time_stamps.append(time_stamp)

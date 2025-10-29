@@ -6,7 +6,7 @@ import subprocess
 
 def main():
     link = str(input("Please enter a YouTube link: "))
-    title, track_names, track_time_stamps, video_length, author, filename = download_audio(link)
+    title, track_names, track_time_stamps, video_length, author, filename, thumbnail_path = download_audio(link)
 
     keep_title = input("Do you want to keep the original title of video as album name? (y/n): ").lower()
     if keep_title != 'y':
@@ -19,7 +19,7 @@ def main():
     if video_length != 0:
         track_time_stamps, track_names = get_tt_tn(track_names, track_time_stamps , video_length)
     
-    kleep(filename, track_time_stamps, track_names, title, author)
+    kleep(filename, track_time_stamps, track_names, title, author, thumbnail_path)
 
     album_directory = "".join(c for c in title if c.isalnum() or c in (' ', '-', '_'))
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -29,6 +29,7 @@ def main():
     
     subprocess.run(["bash", script_path], cwd=output_dir, check=True)
     os.remove(filename)
+    os.remove(thumbnail_path)
     print("Done!")
 
 if __name__ == "__main__":
