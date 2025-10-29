@@ -18,6 +18,7 @@ def song_clipper(audio: AudioFileClip,
                  track_names: List[str],
                  album_name: str,
                  artist: str) -> None:
+    """Clip audio file track by track"""
     
     album_name_dir : str = make_album_folder(album_name)
 
@@ -49,6 +50,7 @@ def kleep(filename: str,
           track_names: List[str],
           album_name: str,
           artist: str) -> None:
+    """Load audio file as a AudioFileClip object"""
 
     audio = AudioFileClip(filename)
     
