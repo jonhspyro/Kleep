@@ -15,6 +15,9 @@ music-tag = "^0.4.3"
 numpy = "^1.26.0"
 pydub = "^0.25.1"
 
+[tool.poetry.scripts]
+kleep = "main:main"
+
 [build-system]
 requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"

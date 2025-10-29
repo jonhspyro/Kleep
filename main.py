@@ -4,7 +4,7 @@ from kleep.core.audio_processor import kleep
 import os
 import subprocess
 
-if __name__ == "__main__":
+def main():
     link = str(input("Please enter a YouTube link: "))
     title, track_names, track_time_stamps, video_length, author, filename = download_audio(link)
 
@@ -31,6 +31,8 @@ if __name__ == "__main__":
     os.remove(filename)
     print("Done!")
 
+if __name__ == "__main__":
+    main()
 
 
 
