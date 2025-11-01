@@ -1,9 +1,9 @@
-from pytubefix import YouTube
-from kleep.core.timestamps import timestamp_to_seconds
-import os
+from kleep.utils.sanitisation import timestamp_to_seconds, clean_yt_title
+from kleep.core.no_info import get_track_names_timestamps
 from typing import Tuple , List
+from pytubefix import YouTube
 import requests
-
+import os
 
 def download_thumbnail(yt: YouTube, audio_filename: str) -> str:
     """Download video thumbnail and save it next to the audio file"""
@@ -20,23 +20,24 @@ def download_thumbnail(yt: YouTube, audio_filename: str) -> str:
             f.write(response.content)
         
         return thumbnail_path
+    
     except Exception as e:
         print(f"Warning: Could not download thumbnail: {e}")
         return None
 
-def chapter_parser(yt : YouTube, filename : str) -> Tuple[str, List[str], List[Tuple[int, int]], int, str, str]:
+def chapter_parser(yt : YouTube, filename : str) -> Tuple[str, str, str, str, List[str], List[Tuple[int, int]]]:
     """Return track names and respective timestamps"""
 
-    video_end : int = yt.length 
+    video_length : int = yt.length 
     video_author : str = yt.author
+    track_names : List[str] = []
+    track_time_stamps: List[Tuple[int, int]] = []
     thumbnail_path : str = download_thumbnail(yt, filename)
 
     if not yt.chapters:
         # No info given by author
-        return yt.title, [], [], video_end, video_author, filename, thumbnail_path
-
-    track_names : List[str] = []
-    track_time_stamps: List[Tuple[int, int]] = []
+        track_time_stamps, track_names = get_track_names_timestamps(video_length)
+        return yt.title, video_author, filename, thumbnail_path, track_names, track_time_stamps
 
     chap_len : int = len(yt.chapters)
 
@@ -49,13 +50,11 @@ def chapter_parser(yt : YouTube, filename : str) -> Tuple[str, List[str], List[T
             track_time_stamps.append((start, end))
         else:
             start = int(timestamp_to_seconds(yt.chapters[i].start_label))
-            track_time_stamps.append((start, video_end))
-            
-    video_end = 0
+            track_time_stamps.append((start, video_length))
     
-    return yt.title, track_names, track_time_stamps, video_end, video_author, filename, thumbnail_path
+    return yt.title, video_author, filename, thumbnail_path, track_names, track_time_stamps
 
-def download_audio(link : str) -> Tuple[str, List[str], List[Tuple[int, int]], int, str, str]:
+def download_audio(link : str) -> Tuple[str, str, str, str, List[str], List[Tuple[int, int]]]:
     """Downloads requested video to an mp3 file"""
 
     try:
@@ -63,10 +62,9 @@ def download_audio(link : str) -> Tuple[str, List[str], List[Tuple[int, int]], i
         yt : YouTube = YouTube(link)
         if not yt.title or not yt.watch_url:
                 raise ValueError("Invalid YouTube link")
-
-        filename : str = f"{yt.title}.mp3"
-        filename = "".join(c for c in filename if c.isalnum() or c in (' ', '-', '_', '.'))
-
+        
+        filename : str = clean_yt_title(yt.title)
+        
         stream = yt.streams.get_audio_only()
         if not stream:
             raise FileNotFoundError(f"Failed to download {filename}")

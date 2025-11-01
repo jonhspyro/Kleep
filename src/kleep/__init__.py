@@ -1,7 +1,6 @@
-"""Kleep - YouTube music album downloader and splitter"""
-
-from .core.audio_processor import kleep
+from .core.audio_processor import process_file
 from .core.download import download_audio
-from .utils.no_info import get_tt_tn
+from .core.no_info import get_track_names_timestamps
+from .core.handle_info import kleep
 
-__all__ = ['kleep', 'download_audio', 'get_tt_tn']
+__all__ = ['process_file', 'download_audio', 'get_track_names_timestamps', 'kleep']
