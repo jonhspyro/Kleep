@@ -23,10 +23,10 @@ def main():
 
     while True:
         try:
-            command = input("Enter command ( kleep | quit ): ").strip().lower()
+            command : str = input("Enter command ( kleep | quit ): ").strip().lower()
             handle_command(command)
         except (KeyboardInterrupt, EOFError):
-            print("\nExiting without Kleeping :(")
+            print("\nExiting without Kleeping :(\n")
             sys.exit(0)
 
 if __name__ == "__main__":
