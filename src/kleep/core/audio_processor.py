@@ -1,68 +1,55 @@
-from moviepy.editor import AudioFileClip
-import os
-import music_tag
-from typing import Tuple , List
 
-def handle_metadata(songname : str,
-                    t_len : int,
-                    track_names : List[str],
-                    index : int,
-                    album_name : str,
-                    artist : str ,
-                    thumbnail_path : str) -> None:
-    """Loads artwork from thumbnail and adds information to mp3 metadata"""
-    artwork_data : bytes = None
+from kleep.core.VideoClass import VideoClass
+from kleep.utils.fixheader import fix_mp3s
+from moviepy.editor import AudioFileClip
+import music_tag
+import os
+
+def handle_thumbnail(thumbnail_path : str) -> bytes:
+    """ Loads artwork from thumbnail """
     if thumbnail_path and os.path.exists(thumbnail_path):
         try:
             with open(thumbnail_path, 'rb') as img_file:
-                artwork_data = img_file.read()
+                return img_file.read()
         except Exception as e:
             print(f"Warning: Could not read thumbnail: {e}")
 
-    f = music_tag.load_file(songname)
-    f["totaltracks"] = t_len
-    f["title"] = track_names[index]
-    f["album"] = album_name
-    f["artist"] = artist
-    f["tracknumber"] = index + 1
-    if artwork_data:
-        f["artwork"] = artwork_data
-    f.save()
-    
-def song_clipper(audio: AudioFileClip,
-                track_timestamps: List[Tuple[int, int]],
-                track_names: List[str],
-                album_name: str,
-                artist: str,
-                thumbnail_path: str) -> None:
-    """Clip audio file track by track"""
-  
-    t_len : int = len(track_timestamps)
-    
-    
-    for i in range(t_len):
-        start_time : int = min(track_timestamps[i][0], audio.duration)
-        end_time : int = min(track_timestamps[i][1], audio.duration)
+def handle_metadata(video : VideoClass, thumbnail : bytes,
+                     songname : str, song_index : int) -> None:
+    """ Adds information to song metadata"""
 
-        print("From: " + str(track_timestamps[i][0]) + " To: " + str(track_timestamps[i][1]))
+    f = music_tag.load_file(songname)
+    f["totaltracks"] = len(video.track_time_stamps)
+    f["tracktitle"] = video.track_names[song_index]
+    f["album"] = video.albumname
+    f["artist"] = video.artist
+    f["tracknumber"] = song_index + 1
+    if thumbnail:
+        f["artwork"] = thumbnail
+    f.save()
+
+def song_clipper(audio: AudioFileClip, video : VideoClass) -> None:
+    """ Clip audio file track by track """
+  
+    t_len : int = len(video.track_time_stamps)
+    
+    thumbnail : bytes = handle_thumbnail(video.thumbnail_path)
+
+    for song_index in range(t_len):
+        start_time : int = min(video.track_time_stamps[song_index][0], audio.duration)
+        end_time : int = min(video.track_time_stamps[song_index][1], audio.duration)
 
         new_clip = audio.subclip(start_time, end_time)
         
-        songname = os.path.join(album_name, track_names[i] + ".mp3")
-        print(songname)
+        songname = os.path.join(video.albumname, video.track_names[song_index] + ".mp3")
         new_clip.write_audiofile(songname)
 
-        handle_metadata(songname, t_len, track_names, i, album_name, artist, thumbnail_path)
-        
-def process_file(filename: str,
-                track_timestamps: List[Tuple[int, int]],
-                track_names: List[str],
-                album_name: str,
-                artist: str,
-                thumbnail_path: str) -> None:
-    """Load audio file as a AudioFileClip object"""
+        handle_metadata(video, thumbnail, songname, song_index)
 
-    audio = AudioFileClip(filename)
-    
-    song_clipper(audio, track_timestamps, track_names, album_name, artist, thumbnail_path)
+def process_file(video : VideoClass) -> None:
+    """ Load audio file as a AudioFileClip object """
+
+    audio = AudioFileClip(video.filename)
+    song_clipper(audio, video)
+    fix_mp3s(video)
         

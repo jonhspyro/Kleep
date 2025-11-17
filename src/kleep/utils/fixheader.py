@@ -1,10 +1,13 @@
 
 from pathlib import Path
+from kleep.core.VideoClass import VideoClass
 import subprocess
 import os
 
-def fix_mp3s(directory: Path, filename : str, thumbnail_path : str):
+def fix_mp3s(video : VideoClass):
+
     """Fix MP3 files by removing XING headers."""
+    directory : Path = Path(video.albumname)
     mp3_files = directory.glob("*.mp3")
     
     for file in mp3_files:
@@ -28,5 +31,5 @@ def fix_mp3s(directory: Path, filename : str, thumbnail_path : str):
             if tmpfile.exists():
                 tmpfile.unlink()
     
-    os.remove(filename)
-    os.remove(thumbnail_path)
+    os.remove(video.filename)
+    os.remove(video.thumbnail_path)
