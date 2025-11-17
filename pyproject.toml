@@ -10,6 +10,7 @@ packages = [{include = "kleep", from = "src"}]
 python = ">=3.10"
 pytubefix = "^10.1.1"
 moviepy = "^1.0.3"
+imageio-ffmpeg = "^0.5.1"
 filetype = "^1.2.0"
 music-tag = "^0.4.3"
 numpy = "^1.26.0"
