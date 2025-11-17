@@ -2,7 +2,3 @@ __pycache__/
 .DS_Store
 *.mp3
 .ruff_cache
-main.build
-main.dist
-main.onefile-build
-kleep
