@@ -17,7 +17,7 @@ numpy = "^1.26.0"
 pydub = "^0.25.1"
 
 [tool.poetry.scripts]
-kleep = "main:main"
+kleep = "main:get_command"
 
 [build-system]
 requires = ["poetry-core>=2.0.0"]

@@ -3,7 +3,7 @@ from kleep.core.download import download_audio
 from kleep.core.VideoClass import VideoClass
 
 
-def kleep():
+def kleep() -> None:
     """Handles information from Youtube video"""
 
     link = str(input("\nPlease enter a YouTube link: "))

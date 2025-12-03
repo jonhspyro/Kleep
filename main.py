@@ -1,7 +1,7 @@
 from kleep.core.handle_info import kleep
 import sys
 
-def handle_command(command: str):
+def handle_command(command: str) -> None:
     """
     Handle user commands.
     """
@@ -17,7 +17,7 @@ def handle_command(command: str):
         case _:
             print("Invalid command, type 'kleep' or 'quit'.")
 
-def main():
+def get_command():
 
     print("Welcome to Kleep!\n")
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
         if hasattr(sys, "_kleep_already_running"):
             sys.exit(0)
         sys._kleep_already_running = True
-    main()
+    get_command()
 
 
 

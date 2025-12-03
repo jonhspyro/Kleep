@@ -9,6 +9,14 @@ def timestamp_to_seconds(timestamp : str):
         return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
     return int(parts[0])
 
+def seconds_to_timestamp(seconds: int) -> str:
+    """Convert seconds to HH:MM:SS."""
+    total = int(seconds)
+    hours = total // 3600
+    minutes = (total % 3600) // 60
+    secs = total % 60
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+
 def make_album_folder(album_name: str) -> str:
     """Create album folder and return sanitized path"""
     safe_dir_name : str = "".join(c for c in album_name if c.isalnum() or c in (' ', '-', '_'))
@@ -25,11 +33,3 @@ def clean_yt_title(title : str) -> str:
 def check_valid_timestamp(time_stamp : str, video_length : str) -> bool:
     check_time_stamp = timestamp_to_seconds(time_stamp)
     return 0 <= check_time_stamp < video_length
-
-def seconds_to_timestamp(seconds: int) -> str:
-    """Convert seconds to HH:MM:SS."""
-    total = int(seconds)
-    hours = total // 3600
-    minutes = (total % 3600) // 60
-    secs = total % 60
-    return f"{hours:02d}:{minutes:02d}:{secs:02d}"

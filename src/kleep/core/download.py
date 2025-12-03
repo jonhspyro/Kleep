@@ -8,8 +8,56 @@ from pathlib import Path
 import requests
 import os
 
-def download_thumbnail(
-          yt: YouTube, audio_filename: str) -> str:
+def getchapters(yt: YouTube):
+
+    track_names : List[str] = []
+    track_time_stamps: List[Tuple[int, int]] = []
+
+    chap_len : int = len(yt.chapters)
+
+    for i in range(chap_len):
+        
+        track_names.append(yt.chapters[i].title)
+        if i != chap_len - 1:
+            start = int(timestamp_to_seconds(yt.chapters[i].start_label))
+            end = int(timestamp_to_seconds(yt.chapters[i + 1].start_label))
+            track_time_stamps.append((start, end))
+        else:
+            start = int(timestamp_to_seconds(yt.chapters[i].start_label))
+            track_time_stamps.append((start, yt.length))
+
+    return track_names, track_time_stamps
+
+def getkey_moments(yt: YouTube):
+
+    track_names : List[str] = []
+    track_time_stamps: List[Tuple[int, int]] = []
+
+    key_moments = yt.key_moments
+    key_moments_len : int = len(key_moments)
+
+    for i in range (key_moments_len) :
+            moment : str = str(key_moments[i])
+            content = moment.replace("<KeyMoment: ", "").replace(">", "")
+            parsed_key_moment = content.split(" | ")
+
+            track_names.append(parsed_key_moment[0])
+            if i!= key_moments_len -1:
+
+                next_moment : str = str(key_moments[i + 1])
+                content = next_moment.replace("<KeyMoment: ", "").replace(">", "")
+                parsed_next_key_moment = content.split(" | ")
+
+                start = int(timestamp_to_seconds(parsed_key_moment[1]))
+                end = int(timestamp_to_seconds(parsed_next_key_moment[1]))
+                track_time_stamps.append((start, end))
+            else:
+                start = int(timestamp_to_seconds(parsed_key_moment[1]))
+                track_time_stamps.append((start, yt.length))
+
+    return track_names, track_time_stamps
+
+def download_thumbnail(yt: YouTube, audio_filename: str) -> str:
     """Download video thumbnail and save it next to the audio file"""
     try:
         thumbnail_url = yt.thumbnail_url
@@ -39,27 +87,20 @@ def chapter_parser(yt : YouTube, filename : str) -> VideoClass:
     thumbnail_path : str = download_thumbnail(yt, filename)
     album_name : Path = make_album_folder(yt.title)
 
-    if not yt.chapters:
+    if yt.key_moments:
+
+        track_names, track_time_stamps = getkey_moments(yt)
+
+    elif yt.chapters:
+         
+        track_names, track_time_stamps = getchapters(yt)
+
+    else:
         # No info given by author
         track_time_stamps, track_names = get_track_names_timestamps(video_length)
         print(f"{yt.title}\n{video_author}\n{filename}\n{album_name}\n{thumbnail_path}\n{track_names}\n{track_time_stamps}")
 
         return VideoClass(yt.title, video_author, filename, album_name, thumbnail_path, track_names, track_time_stamps)
-
-
-    chap_len : int = len(yt.chapters)
-
-    for i in range(chap_len):
-        
-        track_names.append(yt.chapters[i].title)
-        if i != chap_len - 1:
-            start = int(timestamp_to_seconds(yt.chapters[i].start_label))
-            end = int(timestamp_to_seconds(yt.chapters[i + 1].start_label))
-            track_time_stamps.append((start, end))
-        else:
-            start = int(timestamp_to_seconds(yt.chapters[i].start_label))
-            track_time_stamps.append((start, video_length))
-
     return VideoClass(yt.title, video_author, filename, album_name, thumbnail_path, track_names, track_time_stamps)
 
 def download_audio(link : str) -> VideoClass:

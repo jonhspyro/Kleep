@@ -23,6 +23,7 @@ def handle_metadata(video : VideoClass, thumbnail : bytes,
     f["tracktitle"] = video.track_names[song_index]
     f["album"] = video.albumname
     f["artist"] = video.artist
+    f["albumartist"] = video.artist
     f["tracknumber"] = song_index + 1
     if thumbnail:
         f["artwork"] = thumbnail
@@ -50,6 +51,7 @@ def process_file(video : VideoClass) -> None:
     """ Load audio file as a AudioFileClip object """
 
     audio = AudioFileClip(video.filename)
+    
     song_clipper(audio, video)
     fix_mp3s(video)
         
