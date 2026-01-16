@@ -11,11 +11,10 @@ def fix_mp3s(video : VideoClass):
     mp3_files = directory.glob("*.mp3")
     
     for file in mp3_files:
-        print(f"Processing: {file.name}")
+        
         tmpfile = file.with_stem(f"{file.stem}_fixed")
         
-        try:
-            subprocess.run([
+        subprocess.run([
                 "ffmpeg", "-hide_banner", "-loglevel", "error",
                 "-i", str(file),
                 "-c:a", "copy",
@@ -23,13 +22,8 @@ def fix_mp3s(video : VideoClass):
                 str(tmpfile)
             ], check=True)
 
-            tmpfile.replace(file)
-            print(f"Fixed: {file.name}")
-            
-        except subprocess.CalledProcessError:
-            print(f"Failed: {file.name}")
-            if tmpfile.exists():
-                tmpfile.unlink()
+        tmpfile.replace(file)
     
     os.remove(video.filename)
     os.remove(video.thumbnail_path)
+    

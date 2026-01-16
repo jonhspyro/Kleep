@@ -15,15 +15,14 @@ filetype = "^1.2.0"
 music-tag = "^0.4.3"
 numpy = "^1.26.0"
 pydub = "^0.25.1"
+click = "^8.3.1"
+
 
 [tool.poetry.scripts]
-kleep = "main:get_command"
+kleep = "main:cli"
 
 [build-system]
 requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
 [dependency-groups]
-dev = [
-    "ruff (>=0.14.2,<0.15.0)",
-    "nuitka (>=2.8.4,<3.0.0)"
-]
+dev = ["ruff (>=0.14.2,<0.15.0)"]

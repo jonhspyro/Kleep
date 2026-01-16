@@ -1,41 +1,37 @@
 from kleep.core.handle_info import kleep
 import sys
+import click
 
-def handle_command(command: str) -> None:
+# Define the main command group for the CLI
+@click.group()
+def cli():
+    """Kleep: A tool to download YouTube audio and split it into tracks based on chapters/key moments."""
+    pass
+
+# Define the 'kleep' subcommand
+@cli.command()
+@click.argument('link', type=str)
+@click.option('-t', '--title', 'album_title', type=str, default=None,
+              help='Set the desired album name/title, overriding the video title.')
+
+@click.option('-a', '--artist', 'album_artist', type=str, default=None,
+              help='Set the desired album artist, overriding the video author.')
+def link(link: str, album_title: str, album_artist: str) -> None:
     """
-    Handle user commands.
+    Gets link from a YouTube video.
+    Link: The full URL of the YouTube video.
     """
-    match command:
-        case "kleep":
-            try:
-                kleep()
-            except Exception as e:
-                print(f"\n[!] Error while running Kleep: {e}\n")
-        case "quit":
-            print("Exiting Kleep... See you later!")
-            sys.exit(0)
-        case _:
-            print("Invalid command, type 'kleep' or 'quit'.")
+    try:
+        click.echo(f"Kleeping: {link}")
+        kleep(link, album_title, album_artist)
+        click.echo("\nKleeped successfully! 🎉")
+    except Exception as e:
+        click.echo(f"\n[!] Error while running Kleep: {e}", err=True)
 
-def get_command():
-
-    print("Welcome to Kleep!\n")
-
-    while True:
-        try:
-            command : str = input("Enter command ( kleep | quit ): ").strip().lower()
-            handle_command(command)
-        except (KeyboardInterrupt, EOFError):
-            print("\nExiting without Kleeping :(\n")
-            sys.exit(0)
 
 if __name__ == "__main__":
     if getattr(sys, "frozen", False):
         if hasattr(sys, "_kleep_already_running"):
             sys.exit(0)
         sys._kleep_already_running = True
-    get_command()
-
-
-
-    
+    cli()

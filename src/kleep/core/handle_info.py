@@ -1,22 +1,37 @@
 from kleep.core.audio_processor import process_file
 from kleep.core.download import download_audio
 from kleep.core.VideoClass import VideoClass
+import click 
 
+def kleep(link: str, album_title: str = None, album_artist: str = None) -> None:
+    """Handles information from Youtube video, downloads, and processes it."""
 
-def kleep() -> None:
-    """Handles information from Youtube video"""
-
-    link = str(input("\nPlease enter a YouTube link: "))
-
+    # 1. Download audio and parse track info
     video : VideoClass = download_audio(link)
 
-    keep_title = input("Do you want to keep the original title of video as album name? (y/N): ").lower()
-    if keep_title != 'y':
-        video.title = str(input("Enter desired album name: "))
+    # 2. Handle Album Title (interactive or command-line option)
+    if album_title is not None:
+        video.title = album_title
+    else:
+        # Use click.confirm for interactive prompt
+        keep_title = click.confirm(
+            f"Do you want to keep the original title '{video.title}' as the album name?", 
+            default=True
+        )
+        if not keep_title:
+            video.title = click.prompt("Enter desired album name")
     
-    keep_artist = input("Do you want to keep the original author as album artist name? (y/N): ").lower()
-    if keep_artist!= 'y':
-        video.artist = str(input("Enter desired artist name: "))
+    # 3. Handle Album Artist (interactive or command-line option)
+    if album_artist is not None:
+        video.artist = album_artist
+    else:
+        # Use click.confirm for interactive prompt
+        keep_artist = click.confirm(
+            f"Do you want to keep the original author '{video.artist}' as the album artist name?", 
+            default=True
+        )
+        if not keep_artist:
+            video.artist = click.prompt("Enter desired artist name")
+            
+            
     process_file(video)
-
-    print("Kleeped!\n")

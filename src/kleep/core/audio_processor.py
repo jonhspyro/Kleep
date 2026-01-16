@@ -8,12 +8,9 @@ import os
 def handle_thumbnail(thumbnail_path : str) -> bytes:
     """ Loads artwork from thumbnail """
     if thumbnail_path and os.path.exists(thumbnail_path):
-        try:
-            with open(thumbnail_path, 'rb') as img_file:
-                return img_file.read()
-        except Exception as e:
-            print(f"Warning: Could not read thumbnail: {e}")
-
+        with open(thumbnail_path, 'rb') as img_file:
+            return img_file.read()
+        
 def handle_metadata(video : VideoClass, thumbnail : bytes,
                      songname : str, song_index : int) -> None:
     """ Adds information to song metadata"""
