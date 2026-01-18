@@ -87,6 +87,8 @@ def timeStampsParser(yt : YouTube, filename : str, location : str) -> VideoClass
     track_time_stamps: List[Tuple[int, int]] = []
     thumbnail_path : str = download_thumbnail(yt, location)
     album_name : Path = make_album_folder(yt.title)
+    year : int = int(str(yt.publish_date).split('-')[0])
+
 
     if yt.key_moments:
 
@@ -100,8 +102,8 @@ def timeStampsParser(yt : YouTube, filename : str, location : str) -> VideoClass
         # No info given by author
         track_time_stamps, track_names = get_track_names_timestamps(video_length)
         
-        return VideoClass(yt.title, video_author, location, filename, album_name, thumbnail_path, track_names, track_time_stamps)
-    return VideoClass(yt.title, video_author, location, filename, album_name, thumbnail_path, track_names, track_time_stamps)
+        return VideoClass(yt.title, video_author, location, filename, album_name, thumbnail_path, track_names, track_time_stamps, year)
+    return VideoClass(yt.title, video_author, location, filename, album_name, thumbnail_path, track_names, track_time_stamps, year)
 
 def download_audio(link : str) -> VideoClass:
     """Downloads requested video to an mp3 file"""
@@ -111,7 +113,7 @@ def download_audio(link : str) -> VideoClass:
             raise ValueError("Invalid YouTube link")
     
     click.echo(f"Kleeping: {yt.title}")
-    
+
     filename : str = clean_str(yt.title)
     output_dir : str = get_output_dir()
     location : str = output_dir / filename
