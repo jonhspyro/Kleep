@@ -1,5 +1,6 @@
 from kleep.utils.sanitisation import check_valid_timestamp, timestamp_to_seconds, seconds_to_timestamp
 from typing import List, Tuple
+import click
 
 
 def get_track_names( count : int ):
@@ -22,7 +23,7 @@ def get_track_timestamps( count : int, video_length : int ):
     track_time_stamps : List[Tuple[int,int]] = []
     track_names : List[str] = get_track_names( count )
 
-    print("Now enter a timestamp for each track (format HH:MM:SS, MM:SS)")
+    click.echo("Now enter a timestamp for each track (format HH:MM:SS, MM:SS)")
     for name in track_names:
         ts = input(f"Enter timestamp for '{name}': ").strip()
         if ts and check_valid_timestamp(ts, video_length):
@@ -51,7 +52,7 @@ def get_track_timestamps( count : int, video_length : int ):
 def get_track_names_timestamps( video_length : int ):
     """Gather missing information from user"""
 
-    print("No track names or timestamps found.")
+    click.echo("No track names or timestamps found.")
 
     while True:
         try:
@@ -59,7 +60,7 @@ def get_track_names_timestamps( video_length : int ):
             if count > 0:
                 break
         except ValueError:
-            print("Please enter a integer...")
+            click.echo("Please enter a integer...")
             continue
 
     return get_track_timestamps( count, video_length )
