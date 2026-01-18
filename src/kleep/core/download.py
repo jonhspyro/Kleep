@@ -1,11 +1,13 @@
-from kleep.utils.sanitisation import timestamp_to_seconds, clean_yt_title
+from kleep.utils.sanitisation import timestamp_to_seconds, clean_str
 from kleep.core.no_info import get_track_names_timestamps
 from kleep.utils.sanitisation import make_album_folder
 from kleep.core.VideoClass import VideoClass
+from kleep.utils.config import get_output_dir
 from typing import Tuple , List 
 from pytubefix import YouTube
 from pathlib import Path
 import requests
+import click
 import os
 
 def getchapters(yt: YouTube):
@@ -57,13 +59,12 @@ def getkey_moments(yt: YouTube):
 
     return track_names, track_time_stamps
 
-def download_thumbnail(yt: YouTube, audio_filename: str) -> str:
+def download_thumbnail(yt: YouTube, location: str) -> str:
     """Download video thumbnail and save it next to the audio file"""
     try:
         thumbnail_url = yt.thumbnail_url
         
-        base_name = os.path.splitext(audio_filename)[0]
-        thumbnail_path = f"{base_name}.jpg"
+        thumbnail_path = os.path.join(location, 'thumbnail.jpg')
         
         response = requests.get(thumbnail_url)
         response.raise_for_status()
@@ -77,14 +78,14 @@ def download_thumbnail(yt: YouTube, audio_filename: str) -> str:
         print(f"Warning: Could not download thumbnail: {e}")
         return None
 
-def chapter_parser(yt : YouTube, filename : str) -> VideoClass:
+def timeStampsParser(yt : YouTube, filename : str, location : str) -> VideoClass:
     """Return track names and respective timestamps"""
 
     video_length : int = yt.length 
     video_author : str = yt.author
     track_names : List[str] = []
     track_time_stamps: List[Tuple[int, int]] = []
-    thumbnail_path : str = download_thumbnail(yt, filename)
+    thumbnail_path : str = download_thumbnail(yt, location)
     album_name : Path = make_album_folder(yt.title)
 
     if yt.key_moments:
@@ -98,35 +99,29 @@ def chapter_parser(yt : YouTube, filename : str) -> VideoClass:
     else:
         # No info given by author
         track_time_stamps, track_names = get_track_names_timestamps(video_length)
-        print(f"{yt.title}\n{video_author}\n{filename}\n{album_name}\n{thumbnail_path}\n{track_names}\n{track_time_stamps}")
-
-        return VideoClass(yt.title, video_author, filename, album_name, thumbnail_path, track_names, track_time_stamps)
-    return VideoClass(yt.title, video_author, filename, album_name, thumbnail_path, track_names, track_time_stamps)
+        
+        return VideoClass(yt.title, video_author, location, filename, album_name, thumbnail_path, track_names, track_time_stamps)
+    return VideoClass(yt.title, video_author, location, filename, album_name, thumbnail_path, track_names, track_time_stamps)
 
 def download_audio(link : str) -> VideoClass:
     """Downloads requested video to an mp3 file"""
 
-    try:
-
-        yt : YouTube = YouTube(link)
-        if not yt.title or not yt.watch_url:
-                raise ValueError("Invalid YouTube link")
-
-        filename : str = clean_yt_title(yt.title)
-        
-        stream = yt.streams.get_audio_only()
-        if not stream:
-            raise FileNotFoundError(f"Failed to load {filename}")
-        
-        stream.download(filename = filename)
-        if not os.path.exists(filename):
-                raise FileNotFoundError(f"Failed to download {filename}")
-
-        return chapter_parser(yt, filename)
-
-    except Exception as e:
-        
-        if 'filename' in locals() and os.path.exists(filename):
-            os.remove(filename)
-        raise Exception(f"Download failed: {str(e)}")
+    yt : YouTube = YouTube(link)
+    if not yt.title or not yt.watch_url:
+            raise ValueError("Invalid YouTube link")
     
+    click.echo(f"Kleeping: {yt.title}")
+    
+    filename : str = clean_str(yt.title)
+    output_dir : str = get_output_dir()
+    location : str = output_dir / filename
+    
+    stream = yt.streams.get_audio_only()
+    if not stream:
+        raise FileNotFoundError(f"Failed to load {filename}")
+    
+    stream.download(filename = filename, output_path = str(location))
+    if not location.exists():
+            raise FileNotFoundError(f"Failed to download {filename}")
+
+    return timeStampsParser(yt, filename, location)

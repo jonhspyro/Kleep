@@ -1,4 +1,4 @@
-import os
+from kleep.utils.config import get_output_dir
 
 def timestamp_to_seconds(timestamp : str):
     """Convert timestamp to seconds"""
@@ -18,15 +18,14 @@ def seconds_to_timestamp(seconds: int) -> str:
     return f"{hours:02d}:{minutes:02d}:{secs:02d}"
 
 def make_album_folder(album_name: str) -> str:
-    """Create album folder and return sanitized path"""
+    """Create album folder in configured output directory and return sanitized path"""
+    output_dir = get_output_dir()
     safe_dir_name : str = "".join(c for c in album_name if c.isalnum() or c in (' ', '-', '_'))
-    try:
-        os.makedirs(safe_dir_name, exist_ok=True)
-        return safe_dir_name
-    except Exception as e:
-        raise Exception(f"Failed to create album directory: {str(e)}")
+    album_path = output_dir / safe_dir_name
+    album_path.mkdir(parents=True, exist_ok=True)
+    return str(album_path)
     
-def clean_yt_title(title : str) -> str:
+def clean_str(title : str) -> str:
     """Creates clean title for mp3 download"""
     return "".join(c for c in f"{title}.mp3" if c.isalnum() or c in (' ', '-', '_', '.'))
 

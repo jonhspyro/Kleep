@@ -19,7 +19,7 @@ click = "^8.3.1"
 
 
 [tool.poetry.scripts]
-kleep = "main:cli"
+kleep = "kleep.main:cli"
 
 [build-system]
 requires = ["poetry-core>=2.0.0"]

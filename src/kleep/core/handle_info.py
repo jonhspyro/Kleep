@@ -1,10 +1,10 @@
 from kleep.core.audio_processor import process_file
 from kleep.core.download import download_audio
 from kleep.core.VideoClass import VideoClass
-import click 
+import click
 
 def kleep(link: str, album_title: str = None, album_artist: str = None) -> None:
-    """Handles information from Youtube video, downloads, and processes it."""
+    """Handles information from Youtube video, downloads, and processes it"""
 
     # 1. Download audio and parse track info
     video : VideoClass = download_audio(link)
@@ -32,6 +32,5 @@ def kleep(link: str, album_title: str = None, album_artist: str = None) -> None:
         )
         if not keep_artist:
             video.artist = click.prompt("Enter desired artist name")
-            
-            
+                  
     process_file(video)

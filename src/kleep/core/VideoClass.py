@@ -3,10 +3,11 @@ from typing import Tuple, List
 
 @dataclass
 class VideoClass:
-    """Class for video information."""
+    """Class for video information"""
    
     title : str
     artist : str
+    location : str
     filename : str
     albumname : str
     thumbnail_path: str
@@ -15,6 +16,7 @@ class VideoClass:
 
     def __init__(self, title : str, 
                  artist : str , 
+                 location :str,
                  filename : str, 
                  albumname : str,
                  thumbnail_path: str, 
@@ -23,6 +25,7 @@ class VideoClass:
         
         self.title = title
         self.artist = artist
+        self.location = location
         self.filename = filename
         self.albumname = albumname
         self.thumbnail_path = thumbnail_path

@@ -1,9 +1,12 @@
 
+from kleep.utils.sanitisation import clean_str
 from kleep.core.VideoClass import VideoClass
 from kleep.utils.fixheader import fix_mp3s
 from moviepy.editor import AudioFileClip
+from tqdm import tqdm
 import music_tag
 import os
+
 
 def handle_thumbnail(thumbnail_path : str) -> bytes:
     """ Loads artwork from thumbnail """
@@ -33,21 +36,23 @@ def song_clipper(audio: AudioFileClip, video : VideoClass) -> None:
     
     thumbnail : bytes = handle_thumbnail(video.thumbnail_path)
 
-    for song_index in range(t_len):
+    pbar = tqdm(range(t_len), smoothing=50/t_len)
+    for song_index in pbar:
+
+        pbar.set_description(f"Processing song number: {song_index}")
+
         start_time : int = min(video.track_time_stamps[song_index][0], audio.duration)
         end_time : int = min(video.track_time_stamps[song_index][1], audio.duration)
 
         new_clip = audio.subclip(start_time, end_time)
-        
-        songname = os.path.join(video.albumname, video.track_names[song_index] + ".mp3")
-        new_clip.write_audiofile(songname)
+        songname = os.path.join(video.albumname, clean_str(video.track_names[song_index] + ".mp3"))
+        new_clip.write_audiofile(songname, verbose=False, logger=None)
 
         handle_metadata(video, thumbnail, songname, song_index)
 
 def process_file(video : VideoClass) -> None:
     """ Load audio file as a AudioFileClip object """
-
-    audio = AudioFileClip(video.filename)
+    audio = AudioFileClip(str(video.location) + "/" + video.filename)
     
     song_clipper(audio, video)
     fix_mp3s(video)
