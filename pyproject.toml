@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "kleep", from = "src"}]
 
 [tool.poetry.dependencies]
-python = ">=3.10"
+python = ">=3.10,<3.14"  
 pytubefix = "^10.1.1"
 moviepy = "^1.0.3"
 imageio-ffmpeg = "^0.5.1"
@@ -25,4 +25,4 @@ kleep = "kleep.main:cli"
 requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
 [dependency-groups]
-dev = ["ruff (>=0.14.2,<0.15.0)"]
+dev = ["ruff (>=0.14.2,<0.15.0)", "pyinstaller (>=6.19.0,<7.0.0)"]
