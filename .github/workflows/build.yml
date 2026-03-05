@@ -30,12 +30,11 @@ jobs:
       - name: Build with PyInstaller
         shell: bash
         run: |
-          # Determine binary extension
           EXT=""
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then EXT=".exe"; fi
           
           # Run PyInstaller via Poetry to access the environment
-          poetry run pyinstaller --onefile --collect-all imageio_ffmpeg --name "kleep-${{ matrix.os }}" src/kleep/main.py
+          poetry run pyinstaller --onefile --collect-all imageio_ffmpeg --collect-all certifi --runtime-hook src/kleep/runtime_hook.py --name "kleep-${{ matrix.os }}" src/kleep/main.py
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
