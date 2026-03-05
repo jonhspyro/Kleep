@@ -22,3 +22,6 @@ def link(link: str, title: str, artist: str) -> None:
         click.echo("\nKleeped successfully!")
     except Exception as e:
         click.echo(f"\n[!] Error while running Kleep: {e}", err=True)
+
+if __name__ == "__main__":
+    cli()
