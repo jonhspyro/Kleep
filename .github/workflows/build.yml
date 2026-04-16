@@ -3,6 +3,9 @@ name: Build Binary
 on:
   push:
     branches: [main]
+  release:
+    types: [published]
+
 jobs:
   build:
     name: Build on ${{ matrix.os }}
@@ -11,6 +14,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.12']
+
     steps:
       - uses: actions/checkout@v4
 
@@ -19,9 +23,18 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pypoetry
+            ~/.cache/pip
+          key: ${{ matrix.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ matrix.os }}-poetry-
+
       - name: Install Poetry
-        run: |
-          pip install poetry
+        run: pip install poetry
 
       - name: Install dependencies
         # This installs all deps including pytubefix and moviepy
@@ -32,13 +45,43 @@ jobs:
         run: |
           EXT=""
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then EXT=".exe"; fi
-          
-          # Run PyInstaller via Poetry to access the environment
-          poetry run pyinstaller --onefile --collect-all imageio_ffmpeg --collect-all certifi --runtime-hook src/kleep/runtime_hook.py --name "kleep-${{ matrix.os }}" src/kleep/main.py
 
-      - name: Upload Artifacts
+          # Build the binary
+          poetry run pyinstaller \
+            --onefile \
+            --collect-all imageio_ffmpeg \
+            --collect-all certifi \
+            --runtime-hook src/kleep/runtime_hook.py \
+            --name kleep \
+            src/kleep/main.py
+
+          # Rename to include OS in filename for disambiguation
+          mv dist/kleep${EXT} dist/kleep-${{ matrix.os }}${EXT}
+
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: kleep-${{ matrix.os }}-py${{ matrix.python-version }}
-          path: |
-            dist/kleep-*
+          path: dist/kleep-${{ matrix.os }}*
+
+  release:
+    name: Upload to GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display downloaded files
+        run: find artifacts -type f
+
+      - name: Upload binaries to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
