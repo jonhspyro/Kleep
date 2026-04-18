@@ -12,73 +12,29 @@ I love watching concert videos on YouTube and wondered if there could be a way t
 
 ## Features
 
-- **Automatic track splitting** - Uses YouTube chapters when available for instant track organization
-- **Manual mode** - For videos without chapters, manually define tracks with custom names and timestamps
+- **Automatic track splitting** - Uses YouTube chapters or key moments, when available, for instant track organization
+- **Manual mode** - For videos without chapters or key moments, manually define how many tracks you want with custom names and timestamps
 - **Full metadata tagging** - Adds album name, artist, track numbers, and titles to each MP3
-- **Clean output** - Creates organized folders with properly named files
+- **Clean output** - On a first run it lets you choose where you want to save your files
 
-## How It Works
+## Installation
 
-1. Paste a YouTube link
-2. Kleep downloads the audio and detects chapters (if available)
-3. Customize the album and artist names
-4. If no chapters exist, enter track count, names, and respective timestamps for when each track starts
-5. Get a folder with individual MP3 files, ready to transfer to your device
+Download  from the [Releases](../../releases) page.
 
-## Setup
-
-### Prerequisites
-
-- Python 3.8 or higher
-- FFmpeg
-- Poetry
-
-### Installation
-
-#### 1. Install FFmpeg
-
-#### **macOS**
+Make it executable (macOS/Linux):
 
 ```bash
-brew install ffmpeg
+chmod +x kleep-[os]-latest
 ```
 
-#### **Linux (Ubuntu/Debian)**
+## Execution example
 
 ```bash
-sudo apt install ffmpeg
+# Basic usage
+kleep link [Youtube video]
+
+# With custom title and artist
+kleep link [Youtube video] -t "Album Title" -a "Artist Name"
 ```
 
-#### **Windows**
-
-```bash
-winget install ffmpeg
-```
-
-#### 2. Install Poetry
-
-#### **macOS/Linux**
-
-```bash
-curl -sSL https://install.python-poetry.org | python3 -
-```
-
-#### **Windows (PowerShell)**
-
-```powershell
-(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
-```
-
-#### 3. Install Project Dependencies
-
-```bash
-poetry install
-```
-
-## Usage
-
-```bash
-poetry run kleep
-```
-
-Follow the interactive prompts to download and split your audio.
+Note: for videos that have no chapters or key moments available, you'll be asked interactively for the number of tracks, their respective names and timestamps.
