@@ -1,14 +1,11 @@
 from kleep.utils.sanitisation import clean_str
 from kleep.core.VideoClass import VideoClass
 from kleep.utils.fixheader import fix_mp3s
-from moviepy.editor import AudioFileClip
 import imageio_ffmpeg
-import moviepy.config as mpconf  # ← patch moviepy's ffmpeg path
 from tqdm import tqdm
-import music_tag
+import subprocess
 import os
 
-mpconf.FFMPEG_BINARY = imageio_ffmpeg.get_ffmpeg_exe()
 
 def handle_thumbnail(thumbnail_path: str) -> bytes:
     """Loads artwork from thumbnail"""
@@ -16,41 +13,35 @@ def handle_thumbnail(thumbnail_path: str) -> bytes:
         with open(thumbnail_path, 'rb') as img_file:
             return img_file.read()
 
-def handle_metadata(video: VideoClass, thumbnail: bytes,
-                    songname: str, song_index: int) -> None:
-    """Adds information to song metadata"""
-    f = music_tag.load_file(songname)
-    f["totaltracks"] = len(video.track_time_stamps)
-    f["tracktitle"] = video.track_names[song_index]
-    f["album"] = video.title
-    f["artist"] = video.artist
-    f["albumartist"] = video.artist
-    f["tracknumber"] = song_index + 1
-    f["year"] = video.year
-    if thumbnail:
-        f["artwork"] = thumbnail
-    f.save()
 
-def song_clipper(audio: AudioFileClip, video: VideoClass) -> None:
-    """Clip audio file track by track"""
+def song_clipper(video: VideoClass) -> None:
+    """Clip audio file track by track using ffmpeg directly"""
+    ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
     t_len: int = len(video.track_time_stamps)
-    thumbnail: bytes = handle_thumbnail(video.thumbnail_path)
+    audio_path = str(video.location) + "/" + video.filename
 
-    pbar = tqdm(range(t_len), smoothing=50/t_len)
+    pbar = tqdm(range(t_len), smoothing=50 / t_len)
     for song_index in pbar:
         pbar.set_description(f"Processing song number: {song_index}")
 
-        start_time: int = min(video.track_time_stamps[song_index][0], audio.duration)
-        end_time: int = min(video.track_time_stamps[song_index][1], audio.duration)
+        start_time = video.track_time_stamps[song_index][0]
+        end_time = video.track_time_stamps[song_index][1]
+        duration = end_time - start_time
 
-        new_clip = audio.subclip(start_time, end_time)
-        songname = os.path.join(video.albumname, clean_str(video.track_names[song_index] + ".mp3"))
-        new_clip.write_audiofile(songname, verbose=False, logger=None)
+        songname = os.path.join(video.albumname, clean_str(video.track_names[song_index]))
 
-        handle_metadata(video, thumbnail, songname, song_index)
+        subprocess.run([
+            ffmpeg_exe, "-hide_banner", "-loglevel", "error",
+            "-ss", str(start_time),
+            "-t", str(duration),
+            "-i", audio_path,
+            "-c:a", "libmp3lame",
+            songname
+        ], check=True)
+
 
 def process_file(video: VideoClass) -> None:
-    """Load audio file as a AudioFileClip object"""
-    audio = AudioFileClip(str(video.location) + "/" + video.filename)
-    song_clipper(audio, video)
-    fix_mp3s(video)
+    """Load audio file and process it"""
+    thumbnail: bytes = handle_thumbnail(video.thumbnail_path)
+    song_clipper(video)
+    fix_mp3s(video, thumbnail)
