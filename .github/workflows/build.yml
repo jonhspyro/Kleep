@@ -1,7 +1,7 @@
 name: Build Binary
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
   push:
     branches: [main]
   release:
@@ -41,15 +41,14 @@ jobs:
         run: pip install poetry
 
       - name: Install dependencies
-        # This installs all deps including pytubefix and moviepy
         run: poetry install
 
       - name: Build with PyInstaller
         shell: bash
         run: |
-
           # Build the binary
           poetry run pyinstaller \
+            --clean \
             --onefile \
             --collect-all imageio_ffmpeg \
             --collect-all certifi \
