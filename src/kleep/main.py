@@ -1,3 +1,6 @@
+import multiprocessing
+multiprocessing.freeze_support()
+
 from kleep.core.handle_info import kleep
 import click
 
