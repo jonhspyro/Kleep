@@ -6,3 +6,4 @@ __pycache__/
 dist/
 kleep.*
 build/
+checkmp3.py
