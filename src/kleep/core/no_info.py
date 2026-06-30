@@ -24,20 +24,22 @@ def get_track_timestamps( count : int, video_length : int ):
     track_names : List[str] = get_track_names( count )
 
     click.echo("Now enter a timestamp for each track (format HH:MM:SS, MM:SS)")
-    for name in track_names:
-        ts = input(f"Enter timestamp for '{name}': ").strip()
-        if ts and check_valid_timestamp(ts, video_length):
-            ts = timestamp_to_seconds(ts)
-        else:
-            ts = None
-        while ts is None:
-            ts = input(f"Enter valid timestamp.\nVideo limit is '{seconds_to_timestamp(video_length)}'\nEnter timestamp for '{name}': ").strip()
-            if ts and check_valid_timestamp(ts, video_length):
-                ts = timestamp_to_seconds(ts)
-            else:
-                ts = None
 
-        track_times.append(ts)
+    for name in track_names:
+        timestamp = input(f"Enter timestamp for '{name}': ").strip()
+
+        if timestamp and check_valid_timestamp(timestamp, video_length):
+            timestamp = timestamp_to_seconds(timestamp)
+        else:
+            timestamp = None
+        while timestamp is None:
+            timestamp = input(f"Enter valid timestamp.\nVideo limit is '{seconds_to_timestamp(video_length)}'\nEnter timestamp for '{name}': ").strip()
+            if timestamp and check_valid_timestamp(timestamp, video_length):
+                timestamp = timestamp_to_seconds(timestamp)
+            else:
+                timestamp = None
+
+        track_times.append(timestamp)
 
     for i in range(count):
         if i != count - 1:
