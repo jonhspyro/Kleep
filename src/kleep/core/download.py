@@ -1,7 +1,7 @@
 from kleep.utils.sanitisation import timestamp_to_seconds, clean_str
 from kleep.core.no_info import get_track_names_timestamps
 from kleep.utils.sanitisation import make_album_folder
-from kleep.core.VideoClass import VideoClass
+from kleep.core.video import VideoClass
 from kleep.utils.config import get_output_dir
 from typing import Tuple , List 
 from pytubefix import YouTube
@@ -87,8 +87,6 @@ def timeStampsParser(yt : YouTube, filename : str, location : str) -> VideoClass
     track_time_stamps: List[Tuple[int, int]] = []
     thumbnail_path : str = download_thumbnail(yt, location)
     album_name : Path = make_album_folder(yt.title)
-    year : int = int(str(yt.publish_date).split('-')[0])
-
 
     if yt.key_moments:
 
@@ -102,8 +100,8 @@ def timeStampsParser(yt : YouTube, filename : str, location : str) -> VideoClass
         # No info given by author
         track_time_stamps, track_names = get_track_names_timestamps(video_length)
         
-        return VideoClass(yt.title, video_author, location, filename, album_name, thumbnail_path, track_names, track_time_stamps, year)
-    return VideoClass(yt.title, video_author, location, filename, album_name, thumbnail_path, track_names, track_time_stamps, year)
+        return VideoClass(yt.title, video_author, location, filename, album_name, thumbnail_path, track_names, track_time_stamps, year=None, genre=None)
+    return VideoClass(yt.title, video_author, location, filename, album_name, thumbnail_path, track_names, track_time_stamps, year=None, genre=None)
 
 def download_audio(link : str) -> VideoClass:
     """Downloads requested video to an mp3 file"""

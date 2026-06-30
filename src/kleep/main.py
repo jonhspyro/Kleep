@@ -1,8 +1,8 @@
-import multiprocessing
-multiprocessing.freeze_support()
-
 from kleep.core.handle_info import kleep
+import multiprocessing
 import click
+
+multiprocessing.freeze_support()
 
 @click.group()
 def cli():
@@ -13,15 +13,23 @@ def cli():
 @click.argument('link', type=str)
 @click.option('-t', '--title', type=str, default=None,
               help='Set the desired album name/title, overriding the video title')
+
 @click.option('-a', '--artist', type=str, default=None,
               help='Set the desired album artist, overriding the video author')
-def link(link: str, title: str, artist: str) -> None:
+
+@click.option('-g', '--genre', type=str, default=None,
+              help='Set the desired album genre')
+
+@click.option('-y', '--year', type=str, default=None,
+              help='Set the desired album year')
+
+def link(link: str, title: str, artist: str, genre: str, year: str) -> None:
     """
     Gets link from a YouTube video
     Link: The full URL of the YouTube video
     """
     try:
-        kleep(link, title, artist)
+        kleep(link, title, artist, genre, year)
         click.echo("\nKleeped successfully!")
     except Exception as e:
         click.echo(f"\n[!] Error while running Kleep: {e}", err=True)

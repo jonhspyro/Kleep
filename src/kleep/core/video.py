@@ -13,7 +13,8 @@ class VideoClass:
     thumbnail_path: str
     track_names : List[str]
     track_time_stamps : List[Tuple[int, int]]
-    year : int
+    year : str
+    genre : str
 
     def __init__(self, title : str, 
                  artist : str , 
@@ -23,7 +24,8 @@ class VideoClass:
                  thumbnail_path: str, 
                  track_names : List[str], 
                  track_time_stamps : List[Tuple[int, int]],
-                 year : int):
+                 year : str,
+                 genre : str):
         
         self.title = title
         self.artist = artist
@@ -34,5 +36,6 @@ class VideoClass:
         self.track_names = track_names
         self.track_time_stamps = track_time_stamps
         self.year = year
+        self.genre = genre
 
         
