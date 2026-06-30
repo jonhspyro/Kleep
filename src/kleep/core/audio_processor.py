@@ -1,17 +1,10 @@
 from kleep.utils.sanitisation import clean_str
-from kleep.core.VideoClass import VideoClass
-from kleep.utils.fixheader import fix_mp3s
+from kleep.core.video import VideoClass
+from kleep.utils.metadataHandler import fix_mp3s
 import imageio_ffmpeg
 from tqdm import tqdm
 import subprocess
 import os
-
-
-def handle_thumbnail(thumbnail_path: str) -> bytes:
-    """Loads artwork from thumbnail"""
-    if thumbnail_path and os.path.exists(thumbnail_path):
-        with open(thumbnail_path, 'rb') as img_file:
-            return img_file.read()
 
 
 def song_clipper(video: VideoClass) -> None:
@@ -42,6 +35,5 @@ def song_clipper(video: VideoClass) -> None:
 
 def process_file(video: VideoClass) -> None:
     """Load audio file and process it"""
-    thumbnail: bytes = handle_thumbnail(video.thumbnail_path)
     song_clipper(video)
-    fix_mp3s(video, thumbnail)
+    fix_mp3s(video)
